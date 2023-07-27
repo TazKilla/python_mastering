@@ -1,5 +1,7 @@
 import enum
+
 import pyvisa
+
 
 class RangeOptions(enum.Enum):
     minRange = "MIN"
@@ -63,7 +65,7 @@ class Instrument():
         self.modelName      = "N/A"
         self.modelNumber    = "N/A"
         self.characteristic = "N/A"
-        self.description = "Generic instrument"
+        self.description = "Generic instrument - Must be inherited"
     
     def __str__(self):
         return self.description
@@ -91,7 +93,7 @@ class Instrument():
     def getErrorQueue(self):
         """Read and log device's error queue."""
 
-        print("Error queue from " + self.description)
+        print("Error queue from {0} {1}".format(self.constructor, self.modelName))
         print(self.resource.query("SYST:ERR?"))
 
 class FrequencyGenerator_33220A(Instrument):
@@ -110,7 +112,9 @@ class FrequencyGenerator_33220A(Instrument):
         self.modelName      = "20MHz Function/Arbitrary Waveform Generator"
         self.modelNumber    = "33220A"
         self.characteristic = "N/A"
-        self.description = "{0} {1} - {2}".format(self.constructor, self.modelName, self.modelNumber)
+        self.description = "{0} {1} - {2}".format(self.constructor,
+                                                  self.modelName,
+                                                  self.modelNumber)
 
     def setOutput(self, state: OutputStates):
         """Set the generator's output state. It can be on or off."""
@@ -140,7 +144,7 @@ class FrequencyGenerator_33220A(Instrument):
         width : float, optional
             Pulse width in seconds (default is 100 µs).
         trans : float, optional
-            Edge time, where rise time = fall time in seconds (default is 10 ns).
+            Edge time where rise time = fall time in seconds (default is 10 ns).
         freq : float, optional
             Signal frequency (default is 2500 Hz).
         ampl : float, optional
@@ -203,9 +207,12 @@ class MultiMeter_34401A(Instrument):
         self.modelName      = "6 1/2 Digit Multimeter"
         self.modelNumber    = "34401A"
         self.characteristic = "N/A"
-        self.description = "{0} {1} - {2}".format(self.constructor, self.modelName, self.modelNumber)
+        self.description = "{0} {1} - {2}".format(self.constructor,
+                                                  self.modelName,
+                                                  self.modelNumber)
     
-    def setMeasurements(self, currType: CurrentType=CurrentType.direct,
+    def setMeasurements(self, mode: ValueToMeas=ValueToMeas.voltage,
+                        currType: CurrentType=CurrentType.direct,
                         valueRange: float=10, resolution: float=1e-3):
         """
         Set the way to run measurements. No measure is made at this step.
@@ -228,12 +235,16 @@ class MultiMeter_34401A(Instrument):
         if valueRange == -3:
             valueRange = RangeOptions.defRange.value
         
-        print(self.resource.write("CONF:CURR:{0} {1}, {2}".format(currType.value, valueRange, resolution)))
+        print(self.resource.write("CONF:{0}:{1} {2}, {3}".format(mode.value,
+                                                                 currType.value,
+                                                                 valueRange,
+                                                                 resolution)))
 
     def getMeas(self, mode: ValueToMeas, currType: CurrentType):
         """Get value measurement from current measurement setup."""
 
-        print(self.resource.query_ascii_values("MEAS:{0}:{1}?".format(mode.value, currType.value)))
+        print(self.resource.query("MEAS:{0}:{1}?".format(mode.value,
+                                                         currType.value)))
     
     def read(self):
         """Simply read the value shown on the device."""

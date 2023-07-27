@@ -1,13 +1,17 @@
-import pyvisa
-import numpy as np
-import pandas as pd
-import matplotlib.pyplot as plt
+# Main file to test and run intruments for test automation
+
 import datetime
 import time
 
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+import pyvisa
+
 from instr import *
 
-def printData(width, data, date, sampleRate, sine_wave, sine_ampl):
+
+def plotData(width, data, date, sampleRate, sine_wave, sine_ampl):
 
     fig = plt.figure(figsize=(width/42, 9), dpi=300, facecolor='w', edgecolor='k')
     plt.plot(data.t, data.V)
@@ -17,7 +21,6 @@ def printData(width, data, date, sampleRate, sine_wave, sine_ampl):
               str(sampleRate) + ' Sa/s, $f$ = ' + str(sine_wave) + 'Hz, $v_0$ = ' + str(sine_ampl) + 'V$_{pp}$')
     plt.grid(True)
     plt.savefig('{0}_meas_result.png'.format(date))
-    # plt.show()
 
 sineWave       = 1
 sineAmpl       = 0.5
@@ -35,13 +38,13 @@ print(multimeter)
 
 frequ_gen.getID()
 frequ_gen.reset()
-frequ_gen.setWaveform(Waveshapes.pulse, load=50, lowVol=-5, highVol=5, period=0.5, width=0.2, trans=5e-9)
+frequ_gen.setWaveform(Waveshapes.pulse, load=50, lowVol=-5, highVol=5, period=0.2, width=0.1, trans=5e-9)
 # frequ_gen.setWaveform(Waveshapes.sine, load=50, freq=sine_wave, ampl=sine_ampl, offset=0)
 frequ_gen.setOutput(OutputStates.on)
 
 multimeter.getID()
 multimeter.reset()
-multimeter.setMeasurements(CurrentType.direct, -1, -1)
+multimeter.setMeasurements(ValueToMeas.current, CurrentType.direct, -1, -1)
 
 # power_supply.getID()
 # power_supply.reset()
@@ -49,9 +52,10 @@ multimeter.setMeasurements(CurrentType.direct, -1, -1)
 # power_supply.setPower(3.2, 0.25)
 # power_supply.setOutput(OutputStates.on)
 
-N = 2048
-# N = 200
+# N = 2048
+N = 1024
 # N = 512
+# N = 200
 data = pd.DataFrame(columns=['t', 'V'])
 date = datetime.datetime.now().strftime('%Y.%m.%d_%Hh%Mm%Ss%f')
 
@@ -70,7 +74,7 @@ sampleRate = str(np.round((len(data)-1)/elapsedTime, 3))
 print("Elapsed time: ", elapsedTime)
 print("Sampling rate: ", sampleRate)
 
-printData(N, data, date, sampleRate, sineWave, sineAmpl)
+plotData(N, data, date, sampleRate, sineWave, sineAmpl)
 
 frequ_gen.writeText("Cleaning buffer...")
 frequ_gen.getErrorQueue()
