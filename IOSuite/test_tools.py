@@ -16,7 +16,7 @@ def printData(width, data, date, sampleRate, sine_wave, sine_ampl):
     plt.title('Agilent 34401A measurement\nRange: 10V (DC), Resolution: 4.5 digits @ ' +
               str(sampleRate) + ' Sa/s, $f$ = ' + str(sine_wave) + 'Hz, $v_0$ = ' + str(sine_ampl) + 'V$_{pp}$')
     plt.grid(True)
-    plt.savefig('{0}_measurement_result.png'.format(date))
+    plt.savefig('{0}_meas_result.png'.format(date))
     # plt.show()
 
 sineWave       = 1
@@ -35,13 +35,13 @@ print(multimeter)
 
 frequ_gen.getID()
 frequ_gen.reset()
-frequ_gen.setWaveform(Waveshapes.pulse, load=50, lowVol=0, highVol=2, period=0.5, width=0.2, trans=5e-9)
+frequ_gen.setWaveform(Waveshapes.pulse, load=50, lowVol=-5, highVol=5, period=0.5, width=0.2, trans=5e-9)
 # frequ_gen.setWaveform(Waveshapes.sine, load=50, freq=sine_wave, ampl=sine_ampl, offset=0)
 frequ_gen.setOutput(OutputStates.on)
 
 multimeter.getID()
 multimeter.reset()
-multimeter.setMeasurements(type=CurrentType.alternating)
+multimeter.setMeasurements(CurrentType.direct, -1, -1)
 
 # power_supply.getID()
 # power_supply.reset()
