@@ -1,9 +1,31 @@
 import enum
 
 import pyvisa
+import pandas as pd
+import matplotlib.pyplot as plt
 
+
+class PrintData():
+    """Class meant to store all needed data for plotData()."""
+
+    def __init__(self):
+        self.format     = FigureFormat.png
+        self.imgWidth   = 2048
+        self.valToMeas  = ValueToMeas.voltage
+        self.date       = "YYYY.MM.DD_HHhMMmSSs"
+        self.sampleRate = 0
+        self.wavFreq    = 0
+        self.wavAmpl    = 0
+
+class FigureFormat(enum.Enum):
+    """Export format available for plotData()."""
+
+    pdf     = ".pdf"
+    png     = ".png"
 
 class RangeOptions(enum.Enum):
+    """Available predefined ranges for several functions."""
+
     minRange = "MIN"
     maxRange = "MAX"
     defRange = "DEF"
@@ -189,7 +211,6 @@ class FrequencyGenerator_33220A(Instrument):
         else:
             print("No implementation for {0} waveform.".format(form.value))
 
-
 class MultiMeter_34401A(Instrument):
     """
     Class meant to define the Agilent 34401A Multimeter
@@ -250,7 +271,32 @@ class MultiMeter_34401A(Instrument):
         """Simply read the value shown on the device."""
 
         return self.resource.query("READ?")
+    
+    def plotData(self, dataToPlot: pd.DataFrame, testData: PrintData):
+        """Create .png file from session data. Use mathplotlib."""
 
+        fig = plt.figure(
+            figsize=(testData.imgWidth/42, 9),
+            dpi=300,
+            facecolor='w',
+            edgecolor='k'
+        )
+        plt.plot(dataToPlot.t, dataToPlot.V)
+        plt.xlabel('Time (s)')
+        if testData.valToMeas == ValueToMeas.voltage:
+            plt.ylabel('Voltage (V)')
+        elif testData.valToMeas == ValueToMeas.current:
+            plt.ylabel('Current (A)')
+        else:
+            plt.ylabel('Unknown unit')
+        plt.title(self.constructor + ' ' + self.modelNumber + ' measurement\n\
+            Range: 10V (DC), Resolution: 4.5 digits @ ' +
+            str(testData.sampleRate) + ' Sa/s\n\
+            $f$ = ' + str(testData.wavFreq) + 'Hz, $v_0$ = ' +
+            str(testData.wavAmpl) + 'V$_{pp}$'
+        )
+        plt.grid(True)
+        plt.savefig('{0}_meas_result{1}'.format(testData.date, testData.format))
 
 class PowerSupply_E3644A(Instrument):
     """
