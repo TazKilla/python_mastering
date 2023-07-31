@@ -1,0 +1,6 @@
+__pycache__/
+
+*.png
+*.pdf
+
+test_pyqtgraph.py

@@ -53,6 +53,7 @@ multimeter.setMeasurements(ValueToMeas.current, CurrentType.direct, -1, -1)
 # power_supply.setPower(3.2, 0.25)
 # power_supply.setOutput(OutputStates.on)
 
+# N = 32768
 N = 2048
 # N = 1024
 # N = 512
@@ -77,7 +78,7 @@ print("Sampling rate: ", sampleRate)
 
 # plotData(N, data, date, sampleRate, wavFreq, wavAmpl)
 testData            = PrintData()
-testData.format     = FigureFormat.pdf
+testData.format     = FigureFormat.png
 testData.imgWidth   = N
 testData.valToMeas  = ValueToMeas.current
 testData.date       = date

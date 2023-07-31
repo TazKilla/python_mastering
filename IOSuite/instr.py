@@ -276,7 +276,7 @@ class MultiMeter_34401A(Instrument):
         """Create .png file from session data. Use mathplotlib."""
 
         fig = plt.figure(
-            figsize=(testData.imgWidth/42, 9),
+            figsize=(testData.imgWidth/80, 9),
             dpi=300,
             facecolor='w',
             edgecolor='k'
